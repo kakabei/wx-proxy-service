@@ -28,5 +28,5 @@ Redis:
 
 WxAppInfo:
   - AppID: "wx3cc8fd6963e31a32" #  kf 测试公众号
-    AppSecret: "27d428d407dbabcfee6b43669a0cd826"
+    AppSecret: "27d428d407******************"
 
