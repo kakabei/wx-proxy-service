@@ -1,0 +1,5 @@
+FROM golang:1.21.3-alpine 
+COPY wx-proxy-service /go
+RUN mkdir /go/logs /go/etc \
+    && cd /go \
+CMD ["/go/wx-proxy-service"]

@@ -1,0 +1,32 @@
+Name: wx-proxy-api
+Host: 0.0.0.0
+Port: 36012
+
+Log:
+  ServiceName: "wx-proxy-service-api"
+  Mode: "console"
+  #Mode: "file"
+  Encoding: "json"
+  Level: "debug"
+  Path: "./logs"
+  MaxContentLength: 2048
+  TimeFormat: 2006-01-02T15:04:05.000Z07     #时间格式
+  Compress: true  #是否开启gzip压缩
+  KeepDays: 15     #日志保留天数
+  StackCooldownMillis: 100 #日志write间隔，默认100  #多少毫秒后再次写入堆栈跟踪。用来避免堆栈跟踪日志过多
+  MaxBackups: 0 #default=0
+  MaxSize: 0 #default=0
+  Rotation: daily #`json:",default=daily,options=[daily,size]"`
+  Stat: false  #是否开启stat服务，1.4.4版本新增参数`json:",default=true"`
+
+
+Redis:
+  Host: 127.0.0.1:26379
+  Pass: "12345678"
+  Type: node
+
+
+WxAppInfo:
+  - AppID: "wx3cc8fd6963e31a32" #  kf 测试公众号
+    AppSecret: "27d428d407dbabcfee6b43669a0cd826"
+
