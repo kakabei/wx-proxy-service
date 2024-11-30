@@ -8,85 +8,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"wx-proxy-service/internal/config"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/rest/httpc"
 )
 
-type WxAppMgr struct {
-	Redis *redis.Redis
-}
-
-func NewWxAppMgr(appConf config.Config) *WxAppMgr {
-
-	WxApp := new(WxAppMgr)
-
-	WxApp.Redis = redis.New(appConf.Redis.Host, func(r *redis.Redis) {
-		r.Type = appConf.Redis.Type
-		r.Pass = appConf.Redis.Pass
-	})
-
-	return WxApp
-}
-
-// 查询小程序的 access_token
-func (s *WxAppMgr) GetMiniAppAccessToken(flowId string, appId string, AppSecret string) (miniAppsAccessToken MiniProgramAccessToken, err error) {
-
-	//key := fmt.Sprintf("%s%s", MiniAppsAcccessTokenKey, appId)
-	//value, err := s.Redis.Get(key)
-	//if err == nil && len(value) > 0 {
-	//	logx.Errorf("[%s] GetMiniAppAccessToken Redis.Get success. appid[%s] value: %+v", flowId, appId, value)
-	//	miniAppsAccessToken.AccessToken = value
-	//	return
-	//} else if err != nil || len(value) == 0 {
-	//	logx.Errorf("[%s] GetMiniAppAccessToken Redis.Get err. appid[%s] value[%s] err:%+v", flowId, appId, value, err)
-	//}
-
-	wxUrl := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?appid=%s&secret=%s&grant_type=client_credential", appId, AppSecret)
-
-	resp, err := httpc.Do(context.Background(), http.MethodGet, wxUrl, nil)
-	if err != nil || resp.Status != "200 OK" {
-		logx.Errorf("[%s] GetMiniAppAccessToken httpc.Do get err, appId[%s] %+v  resp:%+v", flowId, appId, err, resp)
-		return
-	}
-
-	bytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logx.Errorf("[%s] GetMiniAppAccessToken io.ReadAll err , appId[%s] err:%+v ", flowId, appId, err)
-		return
-	}
-
-	logx.Infof("[%s] GetMiniAppAccessToken: appId[%s] Body : %+v", flowId, appId, string(bytes))
-
-	var m map[string]interface{}
-	err = json.Unmarshal([]byte(bytes), &m)
-	if err != nil {
-		logx.Errorf("[%s] GetMiniAppAccessToken json.Unmarshal err , appId[%s] %+v  resp:%+v", flowId, appId, err, string(bytes))
-
-		return
-	}
-
-	if errcode, ok := m["errcode"]; ok && errcode.(float64) != 0 {
-		err = errors.New(string(bytes))
-		logx.Errorf("[%s] GetMiniAppAccessToken: appId[%s]  m : %+v", flowId, appId, m)
-		return
-	}
-
-	miniAppsAccessToken.AccessToken = m["access_token"].(string)
-	//expiresIn := int64(m["expires_in"].(float64))
-
-	// 写入缓存
-	//if err := s.Redis.Setex(key, miniAppsAccessToken.AccessToken, int(expiresIn-10)); err != nil {
-	//	logx.Errorf("[%s] GetMiniAppAccessToken: s.Redis.Setex err. appid[%s] err: %+v", flowId, appId, err)
-	//}
-
-	return
-}
-
 // 查询用户手机号
-func (s *WxAppMgr) GetUserPphoneNumber(flowId string, appId, accessToken string, code string) (userResp UserPphoneNumberResp, err error) {
+func GetUserPhoneNumber(flowId string, appId, accessToken string, code string) (userResp UserPphoneNumberResp, err error) {
 
 	wxUrl := fmt.Sprintf("https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=%s", accessToken)
 
@@ -143,7 +71,7 @@ func (s *WxAppMgr) GetUserPphoneNumber(flowId string, appId, accessToken string,
 }
 
 // 创建小程序的二维码
-func (s *WxAppMgr) GetUnlimitedQRCode(flowId string, appId, accessToken string, scene string) (QRResp GetUnlimitedQRCodeResp, err error) {
+func GetUnlimitedQRCode(flowId string, appId, accessToken string, scene string) (QRResp GetUnlimitedQRCodeResp, err error) {
 
 	wxUrl := fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=%s", accessToken)
 

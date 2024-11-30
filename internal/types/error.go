@@ -22,11 +22,12 @@ var (
 	HttpSucc                   HTTPCommonHead = HTTPCommonHead{Code: 0, Msg: "OK"}
 	HttpCheckParamError        HTTPCommonHead = HTTPCommonHead{Code: 3584002, Msg: "参数错误"}
 	HttpJosnMarshalErr         HTTPCommonHead = HTTPCommonHead{Code: 3584003, Msg: "json序列化失败"}
-	HttpGetAccessTokenErr      HTTPCommonHead = HTTPCommonHead{Code: 3584003, Msg: "查询token失败"}
-	HttpAppSecretErr           HTTPCommonHead = HTTPCommonHead{Code: 3584003, Msg: "AppSecret错误"}
-	HttpWxUserInfoErr          HTTPCommonHead = HTTPCommonHead{Code: 3584003, Msg: "查询用户信息"}
-	HttpGetUnlimitedQRCodeErr  HTTPCommonHead = HTTPCommonHead{Code: 3584003, Msg: "查询小程序二维码失败"}
-	HttpGetUserPphoneNumberErr HTTPCommonHead = HTTPCommonHead{Code: 3584003, Msg: "查询用户手机号失败"}
+	HttpGetAccessTokenErr      HTTPCommonHead = HTTPCommonHead{Code: 3584004, Msg: "查询token失败"}
+	HttpAppSecretErr           HTTPCommonHead = HTTPCommonHead{Code: 3584005, Msg: "AppSecret错误"}
+	HttpWxUserInfoErr          HTTPCommonHead = HTTPCommonHead{Code: 3584006, Msg: "查询用户信息"}
+	HttpGetUnlimitedQRCodeErr  HTTPCommonHead = HTTPCommonHead{Code: 3584007, Msg: "查询小程序二维码失败"}
+	HttpGetUserPphoneNumberErr HTTPCommonHead = HTTPCommonHead{Code: 3584008, Msg: "查询用户手机号失败"}
+	HttpSendTemplateMsgErr     HTTPCommonHead = HTTPCommonHead{Code: 3584009, Msg: "发送消息模板失败"}
 )
 
 /////

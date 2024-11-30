@@ -6,15 +6,15 @@ import (
 )
 
 type ServiceContext struct {
-	Config           config.Config
-	WxAppIdConfigMgr *wx.WxAppIdConfigMgr
-	WxAppMgr         *wx.WxAppMgr
+	Config               config.Config
+	WxAppIdConfigMgr     *wx.WxAppIdConfigMgr
+	WxOfficailAccountMgr *wx.WxOfficialAccountMgr
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:           c,
-		WxAppIdConfigMgr: wx.NewWxAppConfigMgr(c),
-		WxAppMgr:         wx.NewWxAppMgr(c),
+		Config:               c,
+		WxAppIdConfigMgr:     wx.NewWxAppConfigMgr(c),
+		WxOfficailAccountMgr: wx.NewWxOfficialAccountMgr(c),
 	}
 }

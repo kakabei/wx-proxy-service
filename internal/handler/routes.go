@@ -14,11 +14,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/getwxuserinfo",
-				Handler: GeWxUserInfoHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
 				Path:    "/getwxqrcode",
 				Handler: GetWxQrcodeHandler(serverCtx),
 			},
@@ -26,6 +21,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/getuserphone",
 				Handler: GetUserPhoneHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getwxuserinfo",
+				Handler: GeWxUserInfoHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/sendwxtemplatemsg",
+				Handler: SendWxTemplateMsgHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/v1/service/wx"),

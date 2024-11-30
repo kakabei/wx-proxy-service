@@ -11,27 +11,25 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetWxQrcodeLogic struct {
+type SendWxTemplateMsgLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewGetWxQrcodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetWxQrcodeLogic {
-	return &GetWxQrcodeLogic{
+func NewSendWxTemplateMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendWxTemplateMsgLogic {
+	return &SendWxTemplateMsgLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *GetWxQrcodeLogic) GetWxQrcode(req *types.GetWxQrcodeReq) (resp *types.GetWxQrcodeResp, err error) {
+func (l *SendWxTemplateMsgLogic) SendWxTemplateMsg(req *types.SendWxTemplateMsgReq) (resp *types.SendWxTemplateMsgResp, err error) {
 	requestId := common.GetRequstId(l.ctx)
-	resp = new(types.GetWxQrcodeResp)
-
+	resp = new(types.SendWxTemplateMsgResp)
 	resp.Ret = types.CommonRet{Code: 0, Msg: "OK", RequestID: requestId}
-
-	if req.AppId == "" || req.Source == "" {
+	if req.Source == "" || req.AppId == "" || req.OpenId == "" || req.Data == "" {
 		return nil, types.NewResultError(requestId, types.HttpCheckParamError)
 	}
 
@@ -43,18 +41,15 @@ func (l *GetWxQrcodeLogic) GetWxQrcode(req *types.GetWxQrcodeReq) (resp *types.G
 
 	tokenInfo, err := l.svcCtx.WxOfficailAccountMgr.GetWxAccessToken(requestId, req.AppId, AppSecret)
 	if err != nil {
-		l.Logger.Errorf("[%s] wx.GetWxAccessToken err : %+v", requestId, err)
+		l.Logger.Errorf("[%s] wx.GetMiniAppAccessToken err : %+v", requestId, err)
 		return nil, types.NewResultError(requestId, types.HttpGetAccessTokenErr)
 	}
 
-	codeInfo, err := wx.GetUnlimitedQRCode(requestId, req.AppId, tokenInfo.AccessToken, req.Scene)
+	err = wx.SendTemplateMessage(l.ctx, requestId, req.AppId, tokenInfo.AccessToken, req.Data)
 	if err != nil {
-		l.Logger.Errorf("[%s] wx.GetUnlimitedQRCode err : %+v", requestId, err)
-		return nil, types.NewResultError(requestId, types.HttpGetUnlimitedQRCodeErr)
+		logx.Errorf("[%s] wx.SendTemplateMessage err : %+v", requestId, err)
+		return nil, types.NewResultError(requestId, types.HttpSendTemplateMsgErr)
 	}
-
-	resp.Body.AppId = req.AppId
-	resp.Body.QRBuffer = codeInfo.EncodedData
 
 	return
 }

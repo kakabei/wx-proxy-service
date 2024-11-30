@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"wx-proxy-service/internal/common"
+	"wx-proxy-service/internal/models/wx"
 	"wx-proxy-service/internal/svc"
 	"wx-proxy-service/internal/types"
 
@@ -40,16 +41,17 @@ func (l *GetUserPhoneLogic) GetUserPhone(req *types.GetUserPhoneReq) (resp *type
 		return nil, types.NewResultError(RequestId, types.HttpAppSecretErr)
 	}
 
-	miniAppsAccessToken, err := l.svcCtx.WxAppMgr.GetMiniAppAccessToken(RequestId, req.AppId, AppSecret)
+	tokenInfo, err := l.svcCtx.WxOfficailAccountMgr.GetWxAccessToken(RequestId, req.AppId, AppSecret)
 	if err != nil {
-		logx.Errorf("[%s] wx.GetMiniAppAccessToken err. appid[%s] err : %+v", RequestId, req.AppId, err)
+		logx.Errorf("[%s] wx.GetWxAccessToken err. appid[%s] err : %+v", RequestId, req.AppId, err)
 		return nil, types.NewResultError(RequestId, types.HttpGetAccessTokenErr)
 	}
-	userResp, err := l.svcCtx.WxAppMgr.GetUserPphoneNumber(RequestId, req.AppId, miniAppsAccessToken.AccessToken, req.Code)
+	userResp, err := wx.GetUserPhoneNumber(RequestId, req.AppId, tokenInfo.AccessToken, req.Code)
 	if err != nil {
-		logx.Errorf("[%s] wx.GetWebAccessToken err. appid[%s] err : %+v", RequestId, req.AppId, err)
+		logx.Errorf("[%s] wx.GetUserPhoneNumber err. appid[%s] err : %+v", RequestId, req.AppId, err)
 		return nil, types.NewResultError(RequestId, types.HttpGetUserPphoneNumberErr)
 	}
+
 	resp.Body.AppId = req.AppId
 	resp.Body.PhoneNumber = userResp.PhoneNumber
 	return

@@ -1,12 +1,11 @@
 package wx
 
 const (
-	MiniAppsAcccessTokenKey          = "wx:miniapps:appid:"
-	WxOfficialAccountAcccessTokenKey = "wx:officialaccount:appid:"
+	WxAcccessTokenKey = "wx:appid:accesstoken"
 )
 
 // 小程序
-type MiniProgramAccessToken struct {
+type WxAccessToken struct {
 	AccessToken string `json:"access_token"` // 小程序访问 access_token与基础支持的access_token不同
 }
 

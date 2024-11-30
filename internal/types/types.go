@@ -68,3 +68,19 @@ type GetUserPhoneResp struct {
 	Ret  CommonRet        `json:"ret"`
 	Body GetUserPhoneBody `json:"body"`
 }
+
+type SendWxTemplateMsgReq struct {
+	Source string `json:"source"`  // 业务来源
+	FlowId string `json:"flow_id"` // 流水ID
+	AppId  string `json:"appid"`   // 微信公众号 appid
+	OpenId string `json:"openid"`  // 用户的OpenId
+	Data   string `json:"data"`    // 模板数据
+}
+
+type SendWxTemplateMsgBody struct {
+}
+
+type SendWxTemplateMsgResp struct {
+	Ret  CommonRet             `json:"ret"`
+	Body SendWxTemplateMsgBody `json:"body"`
+}
