@@ -24,8 +24,8 @@
 
 ### 环境要求
 
-- Go 1.16 或以上版本
-- go-zero 1.5.0 或以上版本 (推荐使用最新的稳定版本)
+- go 1.21.3
+- go-zero v1.7.0
   - 安装命令：`go get -u github.com/zeromicro/go-zero`
   - 文档参考：[go-zero 官方文档](https://go-zero.dev/cn/)
 - Redis
@@ -36,7 +36,7 @@
 1. 克隆项目
 
 ```bash
-git clone [项目地址]
+git clone git@github.com:kakabei/wx-proxy-service.git
 cd wx-proxy-service
 ```
 
