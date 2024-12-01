@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"wx-proxy-service/internal/common"
-	"wx-proxy-service/internal/models/wx"
 	"wx-proxy-service/internal/svc"
 	"wx-proxy-service/internal/types"
 
@@ -28,33 +27,44 @@ func NewGetWxQrcodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetWx
 func (l *GetWxQrcodeLogic) GetWxQrcode(req *types.GetWxQrcodeReq) (resp *types.GetWxQrcodeResp, err error) {
 	requestId := common.GetRequstId(l.ctx)
 	resp = new(types.GetWxQrcodeResp)
-
 	resp.Ret = types.CommonRet{Code: 0, Msg: "OK", RequestID: requestId}
 
-	if req.AppId == "" || req.Source == "" {
+	if req.Source == "" || req.AppId == "" || req.Scene == "" {
 		return nil, types.NewResultError(requestId, types.HttpCheckParamError)
 	}
 
-	AppSecret := l.svcCtx.WxAppIdConfigMgr.GetAppSecret(req.AppId)
-	if len(AppSecret) == 0 {
+	appSecret := l.svcCtx.WxAppIdConfigMgr.GetAppSecret(req.AppId)
+	if len(appSecret) == 0 {
 		l.Logger.Errorf("[%s] AppSecret on in configration from[%s] err", requestId, req.Source)
 		return nil, types.NewResultError(requestId, types.HttpAppSecretErr)
 	}
 
-	tokenInfo, err := l.svcCtx.WxOfficailAccountMgr.GetWxAccessToken(requestId, req.AppId, AppSecret)
+	tokenInfo, err := l.svcCtx.WxOfficailAccountMgr.GetWxAccessToken(requestId, req.AppId, appSecret)
 	if err != nil {
-		l.Logger.Errorf("[%s] wx.GetWxAccessToken err : %+v", requestId, err)
+		l.Logger.Errorf("[%s] appid[%s] wx.GetWxAccessToken err : %+v", requestId, req.AppId, err)
 		return nil, types.NewResultError(requestId, types.HttpGetAccessTokenErr)
 	}
 
-	codeInfo, err := wx.GetUnlimitedQRCode(requestId, req.AppId, tokenInfo.AccessToken, req.Scene)
+	actionName := "QR_STR_SCENE"
+	ticketInfo, err := l.svcCtx.WxOfficailAccountMgr.GetWxQrCodeTicket(requestId, req.AppId, tokenInfo.AccessToken, actionName, req.Scene, int(req.ExpireSeconds))
 	if err != nil {
-		l.Logger.Errorf("[%s] wx.GetUnlimitedQRCode err : %+v", requestId, err)
+		l.Logger.Errorf("[%s] appid[%s] wx.GetWxQrCodeTicket err : %+v", requestId, req.AppId, err)
 		return nil, types.NewResultError(requestId, types.HttpGetUnlimitedQRCodeErr)
 	}
 
-	resp.Body.AppId = req.AppId
-	resp.Body.QRBuffer = codeInfo.EncodedData
+	qrCodeInfo, err := l.svcCtx.WxOfficailAccountMgr.GetWxQrCodeWithParameters(requestId, req.AppId, ticketInfo.Ticket)
+	if err != nil {
+		l.Logger.Errorf("[%s] wx.GetWxQrCodeWithParameters err : %+v", requestId, err)
+		return nil, types.NewResultError(requestId, types.HttpGetUnlimitedQRCodeErr)
+	}
 
-	return
+	resp.Body = types.GetWxQrcode{
+		FlowId:        req.FlowId,
+		AppId:         req.AppId,
+		Ticket:        ticketInfo.Ticket,
+		QRBuffer:      qrCodeInfo.EncodedData,
+		ExpireSeconds: int32(ticketInfo.ExpireSeconds),
+	}
+
+	return resp, nil
 }

@@ -40,26 +40,6 @@ type (
 		Body GetWxUserInfoBody `json:"body"`
 	}
 
-	GetWxQrcodeReq {
-		Source        string `json:"source"`         // 业务来源
-		Scene         string `json:"scene"`          // 场景值
-		ExpireSeconds int32  `json:"expire_seconds"` // 二维码， 有效时间
-		AppId         string `json:"appid"`          // 微信公众号 appid
-	}
-
-	GetWxQrcodeBody {
-		FlowId        string `json:"flow_id"`        // 流水ID
-		AppId         string `json:"appid"`          // 小程序的 AppID
-		Ticket        string `json:"ticket"`         // 二维码 ticket
-		QRBuffer      string `json:"qr_buffer"`      // 图片二进制流
-		ExpireSeconds int32  `json:"expire_seconds"` // 二维码， 有效时间
-	}
-
-	GetWxQrcodeResp {
-		Ret  CommonRet       `json:"ret"`
-		Body GetWxQrcodeBody `json:"body"`
-	}
-
 	GetUserPhoneReq {
 		Source string `json:"source"` // 业务来源
 		AppId  string `json:"appid"`  // 小程序的 AppID
@@ -76,6 +56,45 @@ type (
 		Body GetUserPhoneBody `json:"body"`
 	}
 
+	GetWxQrcodeReq {
+		Source        string `json:"source"`         // 业务来源
+		FlowId        string `json:"flow_id"`        // 流水ID
+		Scene         string `json:"scene"`          // 场景值
+		ExpireSeconds int32  `json:"expire_seconds"` // 二维码，有效时间
+		AppId         string `json:"appid"`          // 微信公众号 appid
+	}
+
+	GetWxQrcode {
+		FlowId        string `json:"flow_id"`        // 流水ID
+		AppId         string `json:"appid"`          // 小程序的 AppID
+		Ticket        string `json:"ticket"`         // 二维码 ticket
+		QRBuffer      string `json:"qr_buffer"`      // 图片二进制流
+		ExpireSeconds int32  `json:"expire_seconds"` // 二维码，有效时间
+	}
+
+	GetWxQrcodeResp {
+		Ret  CommonRet   `json:"ret"`
+		Body GetWxQrcode `json:"body"`
+	}
+
+	GetUnlimitedQRCodeReq {
+		Source string `json:"source"`  // 业务来源
+		FlowId string `json:"flow_id"` // 流水ID
+		AppId  string `json:"appid"`   // 小程序的 AppID
+		Scene  string `json:"scene"`   // 场景值
+	}
+
+	GetUnlimitedQRCode {
+		FlowId   string `json:"flow_id"`   // 流水ID
+		AppId    string `json:"appid"`     // 小程序的 AppID
+		QRBuffer string `json:"qr_buffer"` // 图片二进制流
+	}
+
+	GetUnlimitedQRCodeResp {
+		Ret  CommonRet          `json:"ret"`
+		Body GetUnlimitedQRCode `json:"body"`
+	}
+
 	SendWxTemplateMsgReq {
 		Source string `json:"source"`  // 业务来源
 		FlowId string `json:"flow_id"` // 流水ID
@@ -90,6 +109,31 @@ type (
 		Ret  CommonRet             `json:"ret"`
 		Body SendWxTemplateMsgBody `json:"body"`
 	}
+
+	CheckWxSignatureReq {
+		Singnature string `form:"signature"` // 微信公众号后台检测签名
+		Echostr    string `form:"echostr"`
+		Timestamp  int64  `form:"timestamp"`
+		Nonce      string `form:"nonce"`
+	}
+
+	CheckWxSignatureResp {
+		Echostr string `json:"echostr"`
+	}
+
+	ReceiveWxMsgReq {
+		ToUserName   string `xml:"ToUserName"`
+		FromUserName string `xml:"FromUserName"`
+		CreateTime   int64  `xml:"CreateTime"`
+		MsgType      string `xml:"MsgType"`
+		Event        string `xml:"Event"`
+		EventKey     string `xml:"EventKey"`
+		Ticket       string `xml:"Ticket"`
+	}
+
+	ReceiveWxMsgResp {
+		XmlData string `json:"xml_data"`
+	}
 )
 
 @server (
@@ -99,19 +143,31 @@ type (
 service wx-proxy-api {
 
 	// 获取小程序二维码
-	@handler GetWxQrcode
-	post /getwxqrcode (GetWxQrcodeReq) returns (GetWxQrcodeResp)
+	@handler GetUnlimitedQRCode
+	post /getunlimitedqrcode (GetUnlimitedQRCodeReq) returns (GetUnlimitedQRCodeResp)
 
 	// 获取小程序用户手机号
 	@handler GetUserPhone
 	post /getuserphone (GetUserPhoneReq) returns (GetUserPhoneResp)
 
-	// 获取公众号的微信用户信息
+	// 获取公众号网页授权获取用户基本信息
 	@handler GeWxUserInfo
 	post /getwxuserinfo (GetWxUserInfoReq) returns (GetWxUserInfoResp)
+
+	// 获取微信公众号二维码
+	@handler GetWxQrcode
+	post /getwxqrcode (GetWxQrcodeReq) returns (GetWxQrcodeResp)
 
 	// 发送微信公众号模板消息
 	@handler SendWxTemplateMsg
 	post /sendwxtemplatemsg (SendWxTemplateMsgReq) returns (SendWxTemplateMsgResp)
+
+	// 微信平台扫码公众号回调接口
+	@handler CheckWxSignature
+	get /wxmsg (CheckWxSignatureReq) returns (CheckWxSignatureResp)
+
+	// 微信平台扫码公众号回调接口
+	@handler ReceiveWxMsg
+	post /wxmsg (ReceiveWxMsgReq) returns (ReceiveWxMsgResp)
 
 }

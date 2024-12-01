@@ -33,26 +33,6 @@ type GetWxUserInfoResp struct {
 	Body GetWxUserInfoBody `json:"body"`
 }
 
-type GetWxQrcodeReq struct {
-	Source        string `json:"source"`         // 业务来源
-	Scene         string `json:"scene"`          // 场景值
-	ExpireSeconds int32  `json:"expire_seconds"` // 二维码， 有效时间
-	AppId         string `json:"appid"`          // 微信公众号 appid
-}
-
-type GetWxQrcodeBody struct {
-	FlowId        string `json:"flow_id"`        // 流水ID
-	AppId         string `json:"appid"`          // 小程序的 AppID
-	Ticket        string `json:"ticket"`         // 二维码 ticket
-	QRBuffer      string `json:"qr_buffer"`      // 图片二进制流
-	ExpireSeconds int32  `json:"expire_seconds"` // 二维码， 有效时间
-}
-
-type GetWxQrcodeResp struct {
-	Ret  CommonRet       `json:"ret"`
-	Body GetWxQrcodeBody `json:"body"`
-}
-
 type GetUserPhoneReq struct {
 	Source string `json:"source"` // 业务来源
 	AppId  string `json:"appid"`  // 小程序的 AppID
@@ -69,6 +49,45 @@ type GetUserPhoneResp struct {
 	Body GetUserPhoneBody `json:"body"`
 }
 
+type GetWxQrcodeReq struct {
+	Source        string `json:"source"`         // 业务来源
+	FlowId        string `json:"flow_id"`        // 流水ID
+	Scene         string `json:"scene"`          // 场景值
+	ExpireSeconds int32  `json:"expire_seconds"` // 二维码，有效时间
+	AppId         string `json:"appid"`          // 微信公众号 appid
+}
+
+type GetWxQrcode struct {
+	FlowId        string `json:"flow_id"`        // 流水ID
+	AppId         string `json:"appid"`          // 小程序的 AppID
+	Ticket        string `json:"ticket"`         // 二维码 ticket
+	QRBuffer      string `json:"qr_buffer"`      // 图片二进制流
+	ExpireSeconds int32  `json:"expire_seconds"` // 二维码，有效时间
+}
+
+type GetWxQrcodeResp struct {
+	Ret  CommonRet   `json:"ret"`
+	Body GetWxQrcode `json:"body"`
+}
+
+type GetUnlimitedQRCodeReq struct {
+	Source string `json:"source"`  // 业务来源
+	FlowId string `json:"flow_id"` // 流水ID
+	AppId  string `json:"appid"`   // 小程序的 AppID
+	Scene  string `json:"scene"`   // 场景值
+}
+
+type GetUnlimitedQRCode struct {
+	FlowId   string `json:"flow_id"`   // 流水ID
+	AppId    string `json:"appid"`     // 小程序的 AppID
+	QRBuffer string `json:"qr_buffer"` // 图片二进制流
+}
+
+type GetUnlimitedQRCodeResp struct {
+	Ret  CommonRet          `json:"ret"`
+	Body GetUnlimitedQRCode `json:"body"`
+}
+
 type SendWxTemplateMsgReq struct {
 	Source string `json:"source"`  // 业务来源
 	FlowId string `json:"flow_id"` // 流水ID
@@ -83,4 +102,29 @@ type SendWxTemplateMsgBody struct {
 type SendWxTemplateMsgResp struct {
 	Ret  CommonRet             `json:"ret"`
 	Body SendWxTemplateMsgBody `json:"body"`
+}
+
+type CheckWxSignatureReq struct {
+	Singnature string `form:"signature"` // 微信公众号后台检测签名
+	Echostr    string `form:"echostr"`
+	Timestamp  int64  `form:"timestamp"`
+	Nonce      string `form:"nonce"`
+}
+
+type CheckWxSignatureResp struct {
+	Echostr string `json:"echostr"`
+}
+
+type ReceiveWxMsgReq struct {
+	ToUserName   string `xml:"ToUserName"`
+	FromUserName string `xml:"FromUserName"`
+	CreateTime   int64  `xml:"CreateTime"`
+	MsgType      string `xml:"MsgType"`
+	Event        string `xml:"Event"`
+	EventKey     string `xml:"EventKey"`
+	Ticket       string `xml:"Ticket"`
+}
+
+type ReceiveWxMsgResp struct {
+	XmlData string `json:"xml_data"`
 }

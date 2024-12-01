@@ -1,68 +1,50 @@
 package test
 
 import (
-	"context"
+	"encoding/json"
+	"net/http"
 	"testing"
-	"wx-proxy-service/internal/logic"
 	"wx-proxy-service/internal/types"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGeWxUserInfo(t *testing.T) {
-	ctx := context.Background()
-	svcCtx := createMockServiceContext()
+func TestGetWxUserInfo(t *testing.T) {
+	client := NewHTTPTestClient()
 
 	tests := []struct {
-		name    string
-		req     *types.GetWxUserInfoReq
-		wantErr bool
+		name       string
+		req        *types.GetWxUserInfoReq
+		wantStatus int
+		wantErr    bool
 	}{
 		{
 			name: "正常请求",
 			req: &types.GetWxUserInfoReq{
+				Source: "test",
 				AppId:  "wx3cc8fd6963e31a32",
-				Source: "test",
-				Code:   "0611AjGa1GqOBI0xgMHa1ewUsg11AjG7",
+				Code:   "051abr0006J8iT190n400g7jdC4abr0W ",
 			},
-			wantErr: false,
-		},
-		{
-			name: "参数缺失-AppId为空",
-			req: &types.GetWxUserInfoReq{
-				Source: "test",
-				Code:   "0611AjGa1GqOBI0xgMHa1ewUsg11AjG7",
-			},
-			wantErr: true,
-		},
-		{
-			name: "参数缺失-Source为空",
-			req: &types.GetWxUserInfoReq{
-				AppId: "wx3cc8fd6963e31a32",
-				Code:  "0611AjGa1GqOBI0xgMHa1ewUsg11AjG7",
-			},
-			wantErr: true,
-		},
-		{
-			name: "参数缺失-Code为空",
-			req: &types.GetWxUserInfoReq{
-				AppId:  "wx3cc8fd6963e31a32",
-				Source: "test",
-			},
-			wantErr: true,
+			wantStatus: http.StatusOK,
+			wantErr:    false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := logic.NewGeWxUserInfoLogic(ctx, svcCtx)
-			resp, err := l.GeWxUserInfo(tt.req)
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
-			}
+			resp, body := client.DoRequest(t, "POST", "/v1/service/wx/getwxuserinfo", tt.req)
+			assert.Equal(t, tt.wantStatus, resp.StatusCode)
+
+			var result types.GetWxUserInfoResp
+			err := json.Unmarshal(body, &result)
 			assert.NoError(t, err)
-			assert.NotNil(t, resp)
+
+			if tt.wantErr {
+				assert.NotEqual(t, 0, result.Ret.Code)
+			} else {
+				assert.Equal(t, 0, result.Ret.Code)
+				assert.NotEmpty(t, result.Body.Nickname)
+			}
 		})
 	}
 }

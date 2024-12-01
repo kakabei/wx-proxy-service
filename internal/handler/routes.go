@@ -14,8 +14,8 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/getwxqrcode",
-				Handler: GetWxQrcodeHandler(serverCtx),
+				Path:    "/getunlimitedqrcode",
+				Handler: GetUnlimitedQRCodeHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
@@ -29,8 +29,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/getwxqrcode",
+				Handler: GetWxQrcodeHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/sendwxtemplatemsg",
 				Handler: SendWxTemplateMsgHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/wxmsg",
+				Handler: CheckWxSignatureHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/wxmsg",
+				Handler: ReceiveWxMsgHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/v1/service/wx"),

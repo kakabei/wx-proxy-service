@@ -11,26 +11,26 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type SendWxTemplateMsgLogic struct {
+type GetUnlimitedQRCodeLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewSendWxTemplateMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendWxTemplateMsgLogic {
-	return &SendWxTemplateMsgLogic{
+func NewGetUnlimitedQRCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUnlimitedQRCodeLogic {
+	return &GetUnlimitedQRCodeLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *SendWxTemplateMsgLogic) SendWxTemplateMsg(req *types.SendWxTemplateMsgReq) (resp *types.SendWxTemplateMsgResp, err error) {
+func (l *GetUnlimitedQRCodeLogic) GetUnlimitedQRCode(req *types.GetUnlimitedQRCodeReq) (resp *types.GetUnlimitedQRCodeResp, err error) {
 	requestId := common.GetRequstId(l.ctx)
-	resp = new(types.SendWxTemplateMsgResp)
+	resp = new(types.GetUnlimitedQRCodeResp)
 	resp.Ret = types.CommonRet{Code: 0, Msg: "OK", RequestID: requestId}
 
-	if req.Source == "" || req.AppId == "" || req.OpenId == "" || req.Data == "" {
+	if req.Source == "" || req.AppId == "" || req.Scene == "" {
 		return nil, types.NewResultError(requestId, types.HttpCheckParamError)
 	}
 
@@ -40,19 +40,23 @@ func (l *SendWxTemplateMsgLogic) SendWxTemplateMsg(req *types.SendWxTemplateMsgR
 		return nil, types.NewResultError(requestId, types.HttpAppSecretErr)
 	}
 
-	l.Logger.Infof("[%s] GetAppSecret AppSecret : %+v", requestId, appSecret)
-
 	tokenInfo, err := l.svcCtx.WxOfficailAccountMgr.GetWxAccessToken(requestId, req.AppId, appSecret)
 	if err != nil {
-		l.Logger.Errorf("[%s] wx.GetMiniAppAccessToken err : %+v", requestId, err)
+		l.Logger.Errorf("[%s] wx.GetWxAccessToken err : %+v", requestId, err)
 		return nil, types.NewResultError(requestId, types.HttpGetAccessTokenErr)
 	}
 
-	err = wx.SendTemplateMessage(l.ctx, requestId, req.AppId, tokenInfo.AccessToken, req.Data)
+	codeInfo, err := wx.GetUnlimitedQRCode(requestId, req.AppId, tokenInfo.AccessToken, req.Scene)
 	if err != nil {
-		logx.Errorf("[%s] wx.SendTemplateMessage err : %+v", requestId, err)
-		return nil, types.NewResultError(requestId, types.HttpSendTemplateMsgErr)
+		l.Logger.Errorf("[%s] wx.GetUnlimitedQRCode err : %+v", requestId, err)
+		return nil, types.NewResultError(requestId, types.HttpGetUnlimitedQRCodeErr)
 	}
 
-	return
+	resp.Body = types.GetUnlimitedQRCode{
+		FlowId:   req.FlowId,
+		AppId:    req.AppId,
+		QRBuffer: codeInfo.EncodedData,
+	}
+
+	return resp, nil
 }

@@ -19,14 +19,24 @@ Log:
   Rotation: daily #`json:",default=daily,options=[daily,size]"`
   Stat: false  #是否开启stat服务，1.4.4版本新增参数`json:",default=true"`
 
-
 Redis:
-  Host: 127.0.0.1:26379
-  Pass: "12345678"
+  Host: 172.17.114.237:6379
+  Pass: "kane2023"
   Type: node
-
 
 WxAppInfo:
   - AppID: "wx3cc8fd6963e31a32" #  kf 测试公众号
-    AppSecret: "27d428d407dbabcfee6b43669a0cd826
+    AppSecret: "27d428d407dbabcf******"
 
+WxMsgMgr:
+  AllowMsgEvent: ["SCAN","subscribe", ""] # 支持的事件
+  WxOpenIdList:  
+    - EnvName : "dev" 
+      AllowMsgEvent: ["SCAN","subscribe", ""] # 支持的事件
+      HandleUrl: http://127.0.0.1:34455/v1/client/wxmsg1
+      OpenIdList: ["o-iUq6qghnE5dHvzRo4JGokOr0lk11"]
+    
+    - EnvName : "beta" 
+      AllowMsgEvent: ["SCAN","subscribe"] # 支持的事件
+      HandleUrl: http://127.0.0.1:34455/v1/client/wxmsg2
+      OpenIdList: ["o-iUq6qghnE5dHvzRo4JGokOr0lk22"]

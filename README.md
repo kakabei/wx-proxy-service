@@ -15,7 +15,7 @@ https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_auth
 1、用户同意授权，获取code， 在微信客户端打开以下链接：
 
 ```sh
-https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx3cc8fd6963e31a32&redirect_uri=http%3A%2F%2Fblog.xyecho.com&response_type=code&scope=snsapi_userinfo &state=1024#wechat_redirect
+https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx3cc8fd6963e31a32&redirect_uri=http%3A%2F%2Fblog.xyecho.com&response_type=code&scope=snsapi_userinfo&state=1024#wechat_redirect
 ```
 
 跳转之后，可以在 url 中看到 code 参数，如下面的 `0611AjGa1GqOBI0xgMHa1ewUsg11AjG7` 传递给后端， 后端请求微信接口， 获取用户信息。

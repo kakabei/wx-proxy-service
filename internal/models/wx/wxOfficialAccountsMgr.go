@@ -57,14 +57,14 @@ type QRCodeResponse struct {
 // https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html
 func (s *WxOfficialAccountMgr) GetWxAccessToken(requestId string, appId string, AppSecret string) (wxAccessToken WxAccessToken, err error) {
 
-	key := fmt.Sprintf("%s%s", WxAcccessTokenKey, appId)
+	key := fmt.Sprintf("%s:%s", WxAcccessTokenKey, appId)
 
 	value, err := s.Redis.Get(key)
 	if err == nil && len(value) > 0 {
 		logx.Infof("[%s] GetWxAccessToken Redis.Get success. appid[%s] value: %+v", requestId, appId, value)
 		wxAccessToken.AccessToken = value
 		return
-	} else if err != nil || len(value) == 0 {
+	} else if err != nil {
 		logx.Errorf("[%s] GetWxAccessToken Redis.Get err. appid[%s] value[%s] err:%+v", requestId, appId, value, err)
 		return
 	}
@@ -101,7 +101,7 @@ func (s *WxOfficialAccountMgr) GetWxAccessToken(requestId string, appId string, 
 	expiresIn := int64(m["expires_in"].(float64))
 
 	// 写出入缓存
-	if err := s.Redis.Setex(key, wxAccessToken.AccessToken, int(expiresIn-10)); err != nil {
+	if err := s.Redis.Setex(key, wxAccessToken.AccessToken, int(expiresIn-5)); err != nil {
 		logx.Errorf("[%s] GetWxAccessToken: s.Redis.Setex err. appid[%s] err: %+v", requestId, appId, err)
 	}
 
@@ -182,6 +182,7 @@ func (s *WxOfficialAccountMgr) GetWxQrCodeWithParameters(flowId, appId, ticket s
 		logx.Errorf("[%s] GetWxQrCodeWithParameters json.Unmarshal err, appId[%s]  edata:%+v err:%+v ", flowId, appId, string(bytes), err)
 		return
 	}
+
 	qrCodeInfo.AppId = appId
 	encodeUrl := base64.StdEncoding.EncodeToString(bytes)
 	if len(encodeUrl) == 0 {
